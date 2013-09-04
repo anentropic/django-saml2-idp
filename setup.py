@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'saml2idp',
-    version = '0.18',
+    version = '0.19',
     author = 'John Samuel Anderson',
     author_email = 'john@andersoninnovative.com',
     description = 'SAML 2.0 IdP for Django',
@@ -13,8 +13,8 @@ setup(
     ],
     license = 'MIT',
     packages = ['saml2idp', 'saml2idp.tests'],
-    package_dir = {'saml2idp': 'idptest/saml2idp'},
+    package_dir = {'saml2idp': 'saml2idp'},
     package_data = {'saml2idp': ['templates/saml2idp/*.html']},
-    url = 'http://code.google.com/p/django-saml2-idp/',
+    url = 'https://github.com/anentropic/django-saml2-idp/',
     zip_safe = True,
 )
