@@ -8,7 +8,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 # saml2idp app imports:
@@ -18,6 +18,7 @@ import metadata
 import registry
 import xml_signing
 
+
 def _generate_response(request, processor):
     """
     Generate a SAML response using processor and return it in the proper Django
@@ -26,14 +27,14 @@ def _generate_response(request, processor):
     try:
         tv = processor.generate_response()
     except exceptions.UserNotAuthorized:
-        return render_to_response('saml2idp/invalid_user.html',
-                                  context_instance=RequestContext(request))
+        return render('saml2idp/invalid_user.html')
 
-    return render_to_response('saml2idp/login.html', tv,
-                                context_instance=RequestContext(request))
+    return render('saml2idp/login.html', tv)
+
 
 def xml_response(request, template, tv):
-    return render_to_response(template, tv, mimetype="application/xml")
+    return render(request, template, tv, content_type="application/xml")
+
 
 @csrf_view_exempt
 def login_begin(request, *args, **kwargs):
@@ -49,6 +50,7 @@ def login_begin(request, *args, **kwargs):
     request.session['SAMLRequest'] = source['SAMLRequest']
     request.session['RelayState'] = source['RelayState']
     return redirect('login_process')
+
 
 @login_required
 def login_init(request, resource, **kwargs):
@@ -72,6 +74,7 @@ def login_init(request, resource, **kwargs):
     proc.init_deep_link(request, sp_config, url)
     return _generate_response(request, proc)
 
+
 @login_required
 @csrf_response_exempt
 def login_process(request):
@@ -84,6 +87,7 @@ def login_process(request):
     proc = registry.find_processor(request)
     return _generate_response(request, proc)
 
+
 @csrf_view_exempt
 def logout(request):
     """
@@ -93,8 +97,8 @@ def logout(request):
     """
     auth.logout(request)
     tv = {}
-    return render_to_response('saml2idp/logged_out.html', tv,
-                                context_instance=RequestContext(request))
+    return render('saml2idp/logged_out.html', tv)
+
 
 @login_required
 @csrf_view_exempt
@@ -112,8 +116,7 @@ def slo_logout(request):
     #XXX: For now, simply log out without validating the request.
     auth.logout(request)
     tv = {}
-    return render_to_response('saml2idp/logged_out.html', tv,
-                               context_instance=RequestContext(request))
+    return render('saml2idp/logged_out.html', tv)
 
 
 def descriptor(request):
@@ -121,10 +124,10 @@ def descriptor(request):
     Replies with the XML Metadata IDSSODescriptor.
     """
     idp_config = saml2idp_metadata.SAML2IDP_CONFIG
-    entity_id = config['issuer']
+    entity_id = idp_config['issuer']
     slo_url = request.build_absolute_uri(reverse('logout'))
     sso_url = request.build_absolute_uri(reverse('login_begin'))
-    pubkey = xml_signing.load_cert_data(config['certificate_file'])
+    pubkey = xml_signing.load_cert_data(idp_config['certificate_file'])
     tv = {
         'entity_id': entity_id,
         'cert_public_key': pubkey,
@@ -132,5 +135,4 @@ def descriptor(request):
         'sso_url': sso_url,
 
     }
-    return xml_response(request, 'saml2idp/idpssodescriptor.xml', tv,
-                                context_instance=RequestContext(request))
+    return xml_response(request, 'saml2idp/idpssodescriptor.xml', tv)
