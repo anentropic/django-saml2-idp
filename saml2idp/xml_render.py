@@ -7,6 +7,10 @@ from xml_signing import get_signature_xml
 from xml_templates import ATTRIBUTE, ATTRIBUTE_STATEMENT, \
     ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, RESPONSE, SUBJECT
 
+
+log = logging.getLogger(__name__)
+
+
 def _get_attribute_statement(params):
     """
     Inserts AttributeStatement, if we have any attributes.
@@ -31,6 +35,7 @@ def _get_attribute_statement(params):
     statement = stmt_template.substitute(params)
     params['ATTRIBUTE_STATEMENT'] = statement
 
+
 def _get_in_response_to(params):
     """
     Insert InResponseTo if we have a RequestID.
@@ -46,6 +51,7 @@ def _get_in_response_to(params):
     else:
         params['IN_RESPONSE_TO'] = ''
 
+
 def _get_subject(params):
     """
     Insert Subject.
@@ -53,6 +59,7 @@ def _get_subject(params):
     """
     template = string.Template(SUBJECT)
     params['SUBJECT_STATEMENT'] = template.substitute(params)
+
 
 def _get_assertion_xml(template, parameters, signed=False):
     # Reset signature.
@@ -80,11 +87,14 @@ def _get_assertion_xml(template, parameters, signed=False):
     logging.debug(signed)
     return signed
 
+
 def get_assertion_googleapps_xml(parameters, signed=False):
     return _get_assertion_xml(ASSERTION_GOOGLE_APPS, parameters, signed)
 
+
 def get_assertion_salesforce_xml(parameters, signed=False):
     return _get_assertion_xml(ASSERTION_SALESFORCE, parameters, signed)
+
 
 def get_response_xml(parameters, signed=False):
     """
