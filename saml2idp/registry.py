@@ -13,6 +13,7 @@ import saml2idp_metadata
 # Setup logging
 logger = logging.getLogger(__name__)
 
+
 def get_processor(dottedpath):
     """
     Get an instance of the processor with dottedpath.
@@ -36,6 +37,7 @@ def get_processor(dottedpath):
 
     instance = sp_class()
     return instance
+
 
 def find_processor(request):
     """

@@ -29,7 +29,7 @@ def _generate_response(request, processor):
     except exceptions.UserNotAuthorized:
         return render('saml2idp/invalid_user.html')
 
-    return render('saml2idp/login.html', tv)
+    return render(request, 'saml2idp/login.html', tv)
 
 
 def xml_response(request, template, tv):
